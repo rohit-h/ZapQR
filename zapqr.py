@@ -27,6 +27,12 @@ def capture(app):
 	dmsg("Clipboard contents: " + cbtext)
 	return cbtext
 
+def center(self):
+	frameGm = self.frameGeometry()
+	screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
+	centerPoint = QApplication.desktop().screenGeometry(screen).center()
+	frameGm.moveCenter(centerPoint)
+	self.move(frameGm.topLeft())
 
 def main():
 	
@@ -50,6 +56,9 @@ def main():
 	win.setLayout(box)
 	win.setWindowTitle("ZapQR")
 	win.show()
+
+	center(win)
+
 	sys.exit(app.exec_())
 
 if __name__ == '__main__':
