@@ -1,20 +1,39 @@
 #!/usr/bin/python3
 
 import sys
+import json
 import qrcode
+import requests
 from   PyQt4.QtGui import *
 
 def dmsg(msg):
-	print("[debug] " + msg)
+	#print("[debug] " + msg)
 	return
 
 def drawQR(text):
 	try:
-		image = qrcode.make(text)
-		return image
+		qr = qrcode.QRCode()
+		qr.add_data(text)
+		return qr.make_image()
 	except Exception:
 		print("Error generating qrcode")
 		sys.exit(1)
+
+def shortenURL(url):
+	if len(url) < 20:
+	    return url
+
+	payload = {'longUrl':url}
+	content = {'content-type':'application/json'}
+	url = 'https://www.googleapis.com/urlshortener/v1/url'
+
+	resp = requests.post(url, headers=content, data=json.dumps(payload))
+	shorturl = resp.json().get('id')
+
+	if shorturl is None:
+	    return url
+
+	return shorturl
 
 
 def capture(app):
@@ -39,6 +58,10 @@ def main():
 	app = QApplication(sys.argv)
 	
 	txt = capture(app)
+
+	if txt.startswith('http') == True:
+	    txt = shortenURL(txt)
+
 	img = drawQR(txt)
 	img.save("/tmp/qr.png")
 
